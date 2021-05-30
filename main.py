@@ -1,5 +1,7 @@
 import configparser
+import random
 import time
+
 import psycopg2
 import requests
 import vk_api
@@ -32,6 +34,15 @@ helpMsg = ['Список комманд:\n\n'
            ' • стата/статистика - счет древних шизов\n\n'
            ' Все комманды прописываются через @piwass']
 morgMsg = ['Тут должны были быть треки моргена, но @deffichento(данный господин) наложил на него вето']
+AUDIO_LIST_P = [
+    [149642725, 456240733],
+    [149642725, 456240540],
+    [149642725, 456240537],
+    [149642725, 456239941],
+    [149642725, 456240255],
+    [149642725, 456239961],
+    [149642725, 456240281]
+]
 
 
 def register(conn, userid, chatid, name, surname):
@@ -225,6 +236,19 @@ def runBot():
                             ts=ts,
                             random_id=get_random_id(),
                             message=morgMsg[0],
+                            chat_id=event.chat_id
+                        )
+
+                if 'дайте пакетик' in str(event):
+                    if event.from_chat:
+                        random_audio = random.choice(AUDIO_LIST_P)
+                        vk.messages.send(
+                            key=key,
+                            server=server,
+                            ts=ts,
+                            random_id=get_random_id(),
+                            message='С вас 5 рублей',
+                            attachment=f"audio{random_audio[0]}_{random_audio[1]}",
                             chat_id=event.chat_id
                         )
 
