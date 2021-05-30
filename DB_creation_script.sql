@@ -108,10 +108,6 @@ create or replace function pidorbot.randomize(cid INT)  returns table(b BOOLEAN,
     end;
 $$ language plpgsql;
 
-SELECT COUNT(*) FROM pidorbot.vkchat WHERE id = '0';
-
-SELECT * FROM pidorbot.randomize('1');
-
 create or replace function pidorbot.stats(cid INT) returns table(retid INT, n TEXT, sn TEXT, am INT) as $$
     begin
         return query WITH t as (
