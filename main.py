@@ -31,6 +31,7 @@ helpMsg = ['Список комманд:\n\n'
            ' • годовалый - подебитель года\n'
            ' • стата/статистика - счет древних шизов\n\n'
            ' Все комманды прописываются через @piwass']
+morgMsg = ['Тут должны были быть треки моргена, но @deffichento(данный господин) наложил на него вето']
 
 
 def register(conn, userid, chatid, name, surname):
@@ -215,10 +216,23 @@ def runBot():
                             chat_id=event.chat_id
                         )
 
+                if 'моргенштерн' in str(event) or 'морген' in str(event) or 'morgenshtern' in str(
+                        event) or 'MORGENSHTERN' in str(event):
+                    if event.from_chat:
+                        vk.messages.send(
+                            key=key,
+                            server=server,
+                            ts=ts,
+                            random_id=get_random_id(),
+                            message=morgMsg[0],
+                            chat_id=event.chat_id
+                        )
+
     except requests.exceptions.ReadTimeout:
         print("\n Переподключение к серверам ВК \n")
         time.sleep(3)
 
 
 if __name__ == '__main__':
+    print('bot started!')
     runBot()
