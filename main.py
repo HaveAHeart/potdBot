@@ -1,3 +1,4 @@
+import configparser
 import time
 import psycopg2
 import requests
@@ -5,11 +6,14 @@ import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from vk_api.utils import get_random_id
 
-tkn = '611d24513dd52076c3b65170d874c5391971ee010f70706f81f19740385afcb9e0001bbb3432a8739e7fd'
-session = '192652632'
-key = 'eceb6ae28a410408db1405d1d5260d61ecf5dedf'
-server = 'https://lp.vk.com/wh192652632'
-ts = '1'
+
+config = configparser.ConfigParser()
+config.read('params.ini')
+tkn = config['VK_MSG']['token']
+session = config['VK_MSG']['session']
+key = config['VK_MSG']['key']
+server = config['VK_MSG']['server']
+ts = config['VK_MSG']['ts']
 
 randomMsg = ['Новый пидор дня: @id{0}({1} {2}),\n а его личный пассив: @id{3}({4} {5})\n',
              'Текущий пидор дня: @id{0}({1} {2}),\n а его личный пассив: @id{3}({4} {5})\n',
@@ -27,6 +31,7 @@ helpMsg = ['Список комманд:\n\n'
            ' • годовалый - подебитель года\n'
            ' • стата/статистика - счет древних шизов\n\n'
            ' Все комманды прописываются через @piwass']
+
 
 def register(conn, userid, chatid, name, surname):
     sql = "SELECT * FROM pidorbot.register(%s, %s, %s, %s);"
@@ -90,8 +95,11 @@ def get_name(vk, from_id):
 
 
 def runBot():
-    # bad personal info need to reposition TODO()
-    conn = psycopg2.connect(host='localhost', database='postgres', user='intellijIdea', password='1234')
+    host = config['DB']['host']
+    database = config['DB']['database']
+    user = config['DB']['user']
+    password = config['DB']['password']
+    conn = psycopg2.connect(host=host, database=database, user=user, password=password)
 
     vk_session = vk_api.VkApi(token=tkn)
     longpoll = VkBotLongPoll(vk_session, session)
@@ -182,7 +190,7 @@ def runBot():
                     if ret[0]:
                         msg = godovaliyMsg[0].format(ret[1], ret[2], ret[3])
                     else:
-                        msg =  godovaliyMsg[1].format(ret[1], ret[2], ret[3])
+                        msg = godovaliyMsg[1].format(ret[1], ret[2], ret[3])
 
                     if event.from_chat:
                         vk.messages.send(
@@ -196,7 +204,6 @@ def runBot():
 
                 if 'помощь' in str(event) or 'gjvjom' in str(event) or 'хелпа' in str(event) or '[tkgf' in str(event):
                     if event.from_chat:
-
                         msg = helpMsg[0]
 
                         vk.messages.send(
