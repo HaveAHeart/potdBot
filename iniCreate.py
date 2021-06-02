@@ -7,3 +7,5 @@ config['DB'] = {'Host': 'filler', 'Database': 'filler', 'User': 'filler', 'Passw
 with open('params.ini', 'w') as configfile:
     config.write(configfile)
 
+
+

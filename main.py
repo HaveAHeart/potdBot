@@ -1,7 +1,7 @@
 import configparser
 import random
 import time
-
+import nhentai
 import psycopg2
 import requests
 import vk_api
@@ -18,7 +18,8 @@ server = config['VK_MSG']['server']
 ts = config['VK_MSG']['ts']
 
 randomMsg = ['Новый пидор дня: @id{0}({1} {2}),\n а его личный пассив: @id{3}({4} {5})\n',
-             'Текущий пидор дня: @id{0}({1} {2}),\n а его личный пассив: @id{3}({4} {5})\n',
+             'Текущий пидор дня: @id{0}({1} {2}),\n а его личный пассив: @id{3}({4} {5})\n'
+             'А потом у них было много секса, но мы это не покажем...\n',
              'САМООТСОС!\n',
              'Система поиска пидорасов активирована']
 statMsg = ['Итого, стата:\n',
@@ -31,6 +32,7 @@ helpMsg = ['Список комманд:\n\n'
            ' • регистрация/рега - записаться в пидорасы\n'
            ' • рандом - вращайте барабан\n'
            ' • годовалый - подебитель года\n'
+           ' • хорни - 🌚\n'
            ' • стата/статистика - счет древних шизов\n\n'
            ' Все комманды прописываются через @piwass']
 morgMsg = ['Тут должны были быть треки моргена, но @deffichento(данный господин) наложил на него вето']
@@ -252,8 +254,70 @@ def runBot():
                             chat_id=event.chat_id
                         )
 
+                if 'horny' in str(event) or 'хорни' in str(event) or 'прон' in str(event):
+                    if event.from_chat:
+                        try:
+                            nhid = nhentai.get_random_id()
+                            dj = nhentai.get_doujin(nhid)
+                            pic = dj.cover
+                            name = dj.titles
+                            tags_raw = dj.tags
+                            artists = []
+                            tags = []
+                            langs = []
+                            hmsg = ""
+                            for tag in tags_raw:
+                                if tag.type == 'tag':
+                                    tags.append(tag.name)
+                                if tag.type == 'language':
+                                    langs.append(tag.name)
+                                if tag.type == 'artist':
+                                    artists.append(tag.name)
+                            #hmsg = hmsg + type(name) + "\n"
+                            hmsg = hmsg + 'Авторы: ' + ", ".join(artists) + "\n"
+                            hmsg = hmsg + 'Языки: ' + ", ".join(langs) + "\n"
+                            hmsg = hmsg + 'Тэги: ' + ", ".join(tags) + "\n"
+
+                            vk.messages.send(
+                                key=key,
+                                server=server,
+                                ts=ts,
+                                random_id=get_random_id(),
+                                message='Держи, ретард',
+                                chat_id=event.chat_id
+                            )
+                            vk.messages.send(
+                                key=key,
+                                server=server,
+                                ts=ts,
+                                random_id=get_random_id(),
+                                message='nhentai.net/g/{}'.format(nhid),
+                                chat_id=event.chat_id
+                            )
+
+                            vk.messages.send(
+                                key=key,
+                                server=server,
+                                ts=ts,
+                                random_id=get_random_id(),
+                                message=hmsg,
+                                chat_id=event.chat_id
+                            )
+                        except:
+                            vk.messages.send(
+                                key=key,
+                                server=server,
+                                ts=ts,
+                                random_id=get_random_id(),
+                                message='Не могу законнектиться. Тыкай @deffichento, чтоб подрубил впн',
+                                chat_id=event.chat_id
+                            )
+                            pass
     except requests.exceptions.ReadTimeout:
         print("\n Переподключение к серверам ВК \n")
+        time.sleep(3)
+    except:
+        print("\n Беды с соединением, пробуем переподключиться... \n")
         time.sleep(3)
 
 
