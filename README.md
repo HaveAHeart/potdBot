@@ -13,9 +13,11 @@ ATTENTION: OBSCENE LEXICON AHEAD
 
 Зависимости:
 
--pip install vk_api
--pip install psycopg2
--pip install hnentai.py
+pip install vk_api
+
+pip install psycopg2
+
+pip install hnentai.py
 
 Все пассы для АПИ ВК и доступа к БД находяятся в params.ini - файле, код для его генерации в файле iniCreate.py
 
