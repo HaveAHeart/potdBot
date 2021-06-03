@@ -36,6 +36,15 @@ helpMsg = ['Список комманд:\n\n'
            ' • стата/статистика - счет древних шизов\n\n'
            ' Все комманды прописываются через @piwass']
 morgMsg = ['Тут должны были быть треки моргена, но @deffichento(данный господин) наложил на него вето']
+packeticMsg = ['С вас 5 рублей']
+hornyFirstMsg = ['Ara ara~\n',
+                 'Опять дрочить?\n',
+                 'Только не яой, только не яой...\n',
+                 'Только не юри, только не юри...\n',
+                 'Держи, ретард:']
+hornyServMsg = ['nhentai.net/g/{}',
+                'Не могу законнектиться. Тыкай @deffichento, чтоб подрубил впн']
+
 AUDIO_LIST_P = [
     [149642725, 456240733],
     [149642725, 456240540],
@@ -49,58 +58,76 @@ AUDIO_LIST_P = [
 
 def register(conn, userid, chatid, name, surname):
     sql = "SELECT * FROM pidorbot.register(%s, %s, %s, %s);"
-    print('register started')
+    print('кто-то регается...\n')
+
     cur = conn.cursor()
     cur.execute(sql, (userid, chatid, name, surname))
-
     conn.commit()
     row = cur.fetchone()
-    print(row)
-
     cur.close()
     return row
 
 
 def randomize(conn, chatid):
     sql = "SELECT * FROM pidorbot.randomize(%s);"
+    print('кто-то рандомит обычного...\n')
+
     cur = conn.cursor()
     cur.execute(sql, (chatid,))
-
     conn.commit()
     ret = cur.fetchone()
-    print(ret)
-
     cur.close()
     return ret
 
 
 def godovaliy(conn, chatid):
     sql = "SELECT * FROM pidorbot.godovaliy(%s);"
+    print('кто-то рандомит годовалого...\n')
+
     cur = conn.cursor()
     cur.execute(sql, (chatid,))
-
     conn.commit()
     ret = cur.fetchone()
-    print(ret)
-
     cur.close()
     return ret
 
 
 def stats(conn, chatid):
     sql = "SELECT * FROM pidorbot.stats(%s);"
+    print('кто-то просит стату...\n')
+
     cur = conn.cursor()
     cur.execute(sql, (chatid,))
-
     conn.commit()
     ret = []
     row = cur.fetchone()
     while row is not None:
-        print(row)
         ret.append(row)
         row = cur.fetchone()
     cur.close()
     return ret
+
+
+def send_vk_msg(vk, event, msg, attachment):
+    if attachment is None:
+        vk.messages.send(
+            key=key,
+            server=server,
+            ts=ts,
+            random_id=get_random_id(),
+            message=msg,
+            chat_id=event.chat_id
+        )
+    else:
+        vk.messages.send(
+            key=key,
+            server=server,
+            ts=ts,
+            random_id=get_random_id(),
+            message=msg,
+            attachment=attachment,
+            chat_id=event.chat_id
+        )
 
 
 def get_name(vk, from_id):
@@ -115,210 +142,116 @@ def runBot():
     password = config['DB']['password']
     conn = psycopg2.connect(host=host, database=database, user=user, password=password)
 
-    vk_session = vk_api.VkApi(token=tkn)
-    longpoll = VkBotLongPoll(vk_session, session)
-    vk = vk_session.get_api()
+    while True:
+        try:
+            vk_session = vk_api.VkApi(token=tkn)
+            longpoll = VkBotLongPoll(vk_session, session)
+            vk = vk_session.get_api()
 
-    try:
-        for event in longpoll.listen():
-            if event.type == VkBotEventType.MESSAGE_NEW:
-                if 'рандом' in str(event) or 'hfyljv' in str(event):
-                    if event.from_chat:
+            for event in longpoll.listen():
+                if event.type == VkBotEventType.MESSAGE_NEW:
+                    if any(cmd in str(event) for cmd in ('рандом', 'hfyljv')):
+                        if event.from_chat:
+                            cid = event.chat_id
+                            ret = randomize(conn, cid)
+                            if ret[0]:
+                                msg = randomMsg[0].format(ret[1], ret[2], ret[3], ret[4], ret[5], ret[6])
+                            else:
+                                msg = randomMsg[1].format(ret[1], ret[2], ret[3], ret[4], ret[5], ret[6])
+
+                            if ret[1] == ret[4]:
+                                msg = msg + randomMsg[2]
+
+                            send_vk_msg(vk, event, randomMsg[3], None)
+                            send_vk_msg(vk, event, msg, None)
+
+                    if any(cmd in str(event) for cmd in ('статистика', 'cnfnbcnbrf', 'стата', 'cnfnf')):
+                        if event.from_chat:
+                            cid = event.chat_id
+                            ret = stats(conn, cid)
+                            msg = statMsg[0]
+                            for row in ret:
+                                msg = msg + statMsg[1].format(row[0], row[1], row[2], row[3])
+
+                            send_vk_msg(vk, event, msg, None)
+
+                    if any(cmd in str(event) for cmd in ('регистрация', 'htubcnhfwbz', 'рега', 'htuf')):
+                        if event.from_chat:
+                            uid = event.object.get('from_id')
+                            cid = event.chat_id
+                            name_surname = get_name(vk, uid)
+                            ret = register(conn, uid, cid, name_surname[0], name_surname[1])
+                            if ret[0]:
+                                msg = regMsg[0]
+                            else:
+                                msg = regMsg[1].format(uid)
+
+                            send_vk_msg(vk, event, msg, None)
+
+                    if any(cmd in str(event) for cmd in ('годовалый', 'ujljdfksq')):
                         cid = event.chat_id
-                        ret = randomize(conn, cid)
-
-                        vk.messages.send(
-                            key=key,
-                            server=server,
-                            ts=ts,
-                            random_id=get_random_id(),
-                            message=randomMsg[3],
-                            chat_id=event.chat_id
-                        )
-
+                        ret = godovaliy(conn, cid)
                         if ret[0]:
-                            msg = randomMsg[0].format(ret[1], ret[2], ret[3], ret[4], ret[5], ret[6])
+                            msg = godovaliyMsg[0].format(ret[1], ret[2], ret[3])
                         else:
-                            msg = randomMsg[1].format(ret[1], ret[2], ret[3], ret[4], ret[5], ret[6])
+                            msg = godovaliyMsg[1].format(ret[1], ret[2], ret[3])
 
-                        if ret[1] == ret[4]:
-                            msg = msg + randomMsg[2]
+                        send_vk_msg(vk, event, msg, None)
 
-                        vk.messages.send(
-                            key=key,
-                            server=server,
-                            ts=ts,
-                            random_id=get_random_id(),
-                            message=msg,
-                            chat_id=event.chat_id
-                        )
+                    if any(cmd in str(event) for cmd in ('помощь', 'gjvjom', 'хелпа', '[tkgf')):
+                        if event.from_chat:
+                            msg = helpMsg[0]
 
-                if 'статистика' in str(event) or 'cnfnbcnbrf' in str(event) or 'стата' in str(event) or 'cnfnf' in str(
-                        event):
+                            send_vk_msg(vk, event, msg, None)
 
-                    cid = event.chat_id
-                    ret = stats(conn, cid)
+                    if any(cmd in str(event) for cmd in ('моргенштерн', 'морген', 'morgenshtern', 'MORGENSHTERN')):
+                        if event.from_chat:
+                            send_vk_msg(vk, event, morgMsg[0], None)
 
-                    msg = statMsg[0]
-                    for row in ret:
-                        msg = msg + statMsg[1].format(row[0], row[1], row[2], row[3])
+                    if any(cmd in str(event) for cmd in ('дайте пакетик', 'pathetic', 'пакет')):
+                        if event.from_chat:
+                            random_audio = random.choice(AUDIO_LIST_P)
+                            att = f"audio{random_audio[0]}_{random_audio[1]}"
 
-                    if event.from_chat:
-                        vk.messages.send(
-                            key=key,
-                            server=server,
-                            ts=ts,
-                            random_id=get_random_id(),
-                            message=msg,
-                            chat_id=event.chat_id
-                        )
+                            send_vk_msg(vk, event, packeticMsg[0], att)
 
-                if 'регистрация' in str(event) or 'htubcnhfwbz' in str(event) or 'рега' in str(event) or 'htuf' in str(
-                        event):
-                    if event.from_chat:
-                        uid = event.object.get('from_id')
-                        cid = event.chat_id
+                    if any(cmd in str(event) for cmd in ('horny', 'хорни', 'прон')):
+                        if event.from_chat:
+                            try:
+                                nhid = nhentai.get_random_id()
+                                dj = nhentai.get_doujin(nhid)
+                                tags_raw = dj.tags
+                                artists = []
+                                tags = []
+                                langs = []
+                                hmsg = ""
+                                for tag in tags_raw:
+                                    if tag.type == 'tag':
+                                        tags.append(tag.name)
+                                    if tag.type == 'language':
+                                        langs.append(tag.name)
+                                    if tag.type == 'artist':
+                                        artists.append(tag.name)
+                                hmsg = hmsg + 'Авторы: ' + ", ".join(artists) + "\n"
+                                hmsg = hmsg + 'Языки: ' + ", ".join(langs) + "\n"
+                                hmsg = hmsg + 'Тэги: ' + ", ".join(tags) + "\n"
 
-                        name_surname = get_name(vk, uid)
+                                send_vk_msg(vk, event, random.choice(hornyFirstMsg), None)
+                                send_vk_msg(vk, event, hornyServMsg[0].format(nhid), None)
+                                send_vk_msg(vk, event, hmsg, None)
 
-                        ret = register(conn, uid, cid, name_surname[0], name_surname[1])
+                            except:
+                                send_vk_msg(vk, event, hornyServMsg[1], None)
 
-                        if ret[0]:
-                            msg = regMsg[0]
-                        else:
-                            msg = regMsg[1].format(uid)
-
-                        vk.messages.send(
-                            key=key,
-                            server=server,
-                            ts=ts,
-                            random_id=get_random_id(),
-                            message=msg,
-                            chat_id=event.chat_id
-                        )
-
-                if 'годовалый' in str(event) or 'ujljdfksq' in str(event):
-                    cid = event.chat_id
-                    ret = godovaliy(conn, cid)
-
-                    if ret[0]:
-                        msg = godovaliyMsg[0].format(ret[1], ret[2], ret[3])
-                    else:
-                        msg = godovaliyMsg[1].format(ret[1], ret[2], ret[3])
-
-                    if event.from_chat:
-                        vk.messages.send(
-                            key=key,
-                            server=server,
-                            ts=ts,
-                            random_id=get_random_id(),
-                            message=msg,
-                            chat_id=event.chat_id
-                        )
-
-                if 'помощь' in str(event) or 'gjvjom' in str(event) or 'хелпа' in str(event) or '[tkgf' in str(event):
-                    if event.from_chat:
-                        msg = helpMsg[0]
-
-                        vk.messages.send(
-                            key=key,
-                            server=server,
-                            ts=ts,
-                            random_id=get_random_id(),
-                            message=msg,
-                            chat_id=event.chat_id
-                        )
-
-                if 'моргенштерн' in str(event) or 'морген' in str(event) or 'morgenshtern' in str(
-                        event) or 'MORGENSHTERN' in str(event):
-                    if event.from_chat:
-                        vk.messages.send(
-                            key=key,
-                            server=server,
-                            ts=ts,
-                            random_id=get_random_id(),
-                            message=morgMsg[0],
-                            chat_id=event.chat_id
-                        )
-
-                if 'дайте пакетик' in str(event):
-                    if event.from_chat:
-                        random_audio = random.choice(AUDIO_LIST_P)
-                        vk.messages.send(
-                            key=key,
-                            server=server,
-                            ts=ts,
-                            random_id=get_random_id(),
-                            message='С вас 5 рублей',
-                            attachment=f"audio{random_audio[0]}_{random_audio[1]}",
-                            chat_id=event.chat_id
-                        )
-
-                if 'horny' in str(event) or 'хорни' in str(event) or 'прон' in str(event):
-                    if event.from_chat:
-                        try:
-                            nhid = nhentai.get_random_id()
-                            dj = nhentai.get_doujin(nhid)
-                            pic = dj.cover
-                            name = dj.titles
-                            tags_raw = dj.tags
-                            artists = []
-                            tags = []
-                            langs = []
-                            hmsg = ""
-                            for tag in tags_raw:
-                                if tag.type == 'tag':
-                                    tags.append(tag.name)
-                                if tag.type == 'language':
-                                    langs.append(tag.name)
-                                if tag.type == 'artist':
-                                    artists.append(tag.name)
-                            #hmsg = hmsg + type(name) + "\n"
-                            hmsg = hmsg + 'Авторы: ' + ", ".join(artists) + "\n"
-                            hmsg = hmsg + 'Языки: ' + ", ".join(langs) + "\n"
-                            hmsg = hmsg + 'Тэги: ' + ", ".join(tags) + "\n"
-
-                            vk.messages.send(
-                                key=key,
-                                server=server,
-                                ts=ts,
-                                random_id=get_random_id(),
-                                message='Держи, ретард',
-                                chat_id=event.chat_id
-                            )
-                            vk.messages.send(
-                                key=key,
-                                server=server,
-                                ts=ts,
-                                random_id=get_random_id(),
-                                message='nhentai.net/g/{}'.format(nhid),
-                                chat_id=event.chat_id
-                            )
-
-                            vk.messages.send(
-                                key=key,
-                                server=server,
-                                ts=ts,
-                                random_id=get_random_id(),
-                                message=hmsg,
-                                chat_id=event.chat_id
-                            )
-                        except:
-                            vk.messages.send(
-                                key=key,
-                                server=server,
-                                ts=ts,
-                                random_id=get_random_id(),
-                                message='Не могу законнектиться. Тыкай @deffichento, чтоб подрубил впн',
-                                chat_id=event.chat_id
-                            )
-                            pass
-    except requests.exceptions.ReadTimeout:
-        print("\n Переподключение к серверам ВК \n")
-        time.sleep(3)
-    except:
-        print("\n Беды с соединением, пробуем переподключиться... \n")
-        time.sleep(3)
+        except requests.exceptions.ReadTimeout:
+            print("\n Переподключение к серверам ВК \n")
+            time.sleep(3)
+        except requests.exceptions.ConnectionError:
+            print("\n Беды с коннекшном, опять играешься с ВПНом? \n")
+            time.sleep(3)
+        except:
+            print("\n НЕИЗВЕСТНАЯ АШИПКА АТТЕНШОН \n")
+            time.sleep(3)
 
 
 if __name__ == '__main__':
