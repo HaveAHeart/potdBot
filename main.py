@@ -5,6 +5,7 @@ import nhentai
 import psycopg2
 import requests
 import vk_api
+import re
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from vk_api.utils import get_random_id
 
@@ -32,14 +33,16 @@ helpMsg = ['Список комманд:\n\n'
            ' • регистрация/рега - записаться в пидорасы\n'
            ' • рандом - вращайте барабан\n'
            ' • годовалый - подебитель года\n'
-           ' • хорни - 🌚\n'
            ' • стата/статистика - счет древних шизов\n\n'
+           ' • хорни - 🌚\n\n'
+           ' • боньк - прописать человечку боньк (цель задаётся через "@")\n'
            ' Все комманды прописываются через @piwass']
 morgMsg = ['Тут должны были быть треки моргена, но @deffichento(данный господин) наложил на него вето']
 packeticMsg = ['С вас 5 рублей']
 hornyServMsg = ['nhentai.net/g/{}',
-                'Не могу законнектиться. Тыкай @deffichento, чтоб подрубил впн']
-
+                'Не могу законнектиться. Тыкай @deffichento, чтоб подрубил впн\n']
+bonkMsg = ['{} даёт {} дубинкой по голове\n',
+           '{} очень хочет сделать кого-то менее хорни, но не знает, кого\n']
 with open('horny_intro.txt', 'r', encoding="utf-8") as f:
     hornyFirstMsg = f.readlines()
 
@@ -213,6 +216,20 @@ def runBot():
 
                             send_vk_msg(vk, event, packeticMsg[0], att)
 
+                    if any(cmd in str(event) for cmd in ('bonk', 'боньк')):
+                        if event.from_chat:
+                            target = re.findall(r"(\[(id|club)[1-9]+\|@\w+\])", event.object.get('text'))
+                            print(target)
+                            print(event.object.get('text'))
+
+                            uid = event.object.get('from_id')
+                            name_surname = " ".join(get_name(vk, uid))
+
+                            if len(target) == 1:
+                                send_vk_msg(vk, event, bonkMsg[1].format(name_surname), None)
+                            else:
+                                send_vk_msg(vk, event, bonkMsg[0].format(name_surname, target[1][0]), None)
+
                     if any(cmd in str(event) for cmd in ('horny', 'хорни', 'прон')):
                         if event.from_chat:
                             try:
@@ -250,6 +267,7 @@ def runBot():
             time.sleep(3)
         except:
             print("\n НЕИЗВЕСТНАЯ АШИПКА АТТЕНШОН \n")
+
             time.sleep(3)
 
 
