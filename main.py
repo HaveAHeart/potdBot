@@ -37,13 +37,11 @@ helpMsg = ['Список комманд:\n\n'
            ' Все комманды прописываются через @piwass']
 morgMsg = ['Тут должны были быть треки моргена, но @deffichento(данный господин) наложил на него вето']
 packeticMsg = ['С вас 5 рублей']
-hornyFirstMsg = ['Ara ara~\n',
-                 'Опять дрочить?\n',
-                 'Только не яой, только не яой...\n',
-                 'Только не юри, только не юри...\n',
-                 'Держи, ретард:']
 hornyServMsg = ['nhentai.net/g/{}',
                 'Не могу законнектиться. Тыкай @deffichento, чтоб подрубил впн']
+
+with open('horny_intro.txt', 'r', encoding="utf-8") as f:
+    hornyFirstMsg = f.readlines()
 
 AUDIO_LIST_P = [
     [149642725, 456240733],
@@ -241,6 +239,7 @@ def runBot():
                                 send_vk_msg(vk, event, hmsg, None)
 
                             except:
+                                send_vk_msg(vk, event, random.choice(hornyFirstMsg), None)
                                 send_vk_msg(vk, event, hornyServMsg[1], None)
 
         except requests.exceptions.ReadTimeout:
