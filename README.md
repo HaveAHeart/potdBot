@@ -17,6 +17,8 @@ pip install vk_api
 
 pip install psycopg2
 
+pip install hnentai.py
+
 Все пассы для АПИ ВК и доступа к БД находяятся в params.ini - файле, код для его генерации в файле iniCreate.py
 
 SQL-код для создания таблиц и функций Postgres-БД находится в отдельном файле
