@@ -218,7 +218,7 @@ def runBot():
 
                     if any(cmd in str(event) for cmd in ('bonk', 'боньк')):
                         if event.from_chat:
-                            target = re.findall(r"(\[(id|club)[1-9]+\|@\w+\])", event.object.get('text'))
+                            target = re.findall(r"(\[(id|club)[0-9]+\|@\w+\])", event.object.get('text'))
                             print(target)
                             print(event.object.get('text'))
 
