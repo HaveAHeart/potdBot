@@ -169,8 +169,8 @@ def runBot():
 
             for event in longpoll.listen():
                 if event.type == VkBotEventType.MESSAGE_NEW:
-                    cmd_in = str(event)
-                    if any(cmd in cmd_in for cmd in ('рандом', 'hfyljv')):
+                    cmd_in = str(event).lower()
+                    if any(cmd in cmd_in for cmd in ('рандом', 'ролл')):
                         if event.from_chat:
                             cid = event.chat_id
                             ret = randomize(conn, cid)
@@ -185,7 +185,7 @@ def runBot():
                             send_vk_msg(vk, event, randomMsg[3], None)
                             send_vk_msg(vk, event, msg, None)
 
-                    elif any(cmd in cmd_in for cmd in ('статистика', 'cnfnbcnbrf', 'стата', 'cnfnf')):
+                    elif any(cmd in cmd_in for cmd in ('статистика', 'стата')):
                         if event.from_chat:
                             cid = event.chat_id
                             ret = stats(conn, cid)
@@ -195,7 +195,7 @@ def runBot():
 
                             send_vk_msg(vk, event, msg, None)
 
-                    elif any(cmd in cmd_in for cmd in ('регистрация', 'htubcnhfwbz', 'рега', 'htuf')):
+                    elif any(cmd in cmd_in for cmd in ('регистрация', 'рега')):
                         if event.from_chat:
                             uid = event.object.get('from_id')
                             cid = event.chat_id
@@ -208,7 +208,7 @@ def runBot():
 
                             send_vk_msg(vk, event, msg, None)
 
-                    elif any(cmd in cmd_in for cmd in ('годовалый', 'ujljdfksq')):
+                    elif any(cmd in cmd_in for cmd in ('годовалый', 'год')):
                         cid = event.chat_id
                         ret = godovaliy(conn, cid)
                         if ret[0]:
@@ -218,13 +218,13 @@ def runBot():
 
                         send_vk_msg(vk, event, msg, None)
 
-                    elif any(cmd in cmd_in for cmd in ('помощь', 'gjvjom', 'хелпа', '[tkgf')):
+                    elif any(cmd in cmd_in for cmd in ('помощь', 'хелпа')):
                         if event.from_chat:
                             msg = helpMsg[0]
 
                             send_vk_msg(vk, event, msg, None)
 
-                    elif any(cmd in cmd_in for cmd in ('моргенштерн', 'морген', 'morgenshtern', 'MORGENSHTERN')):
+                    elif any(cmd in cmd_in for cmd in ('моргенштерн', 'морген', 'morgenshtern')):
                         if event.from_chat:
                             send_vk_msg(vk, event, morgMsg[0], None)
 
@@ -235,19 +235,19 @@ def runBot():
 
                             send_vk_msg(vk, event, packeticMsg[0], att)
 
-                    elif any(cmd in cmd_in for cmd in ('bonk', 'боньк')):
+                    elif any(cmd in cmd_in for cmd in ('боньк', )):
                         if event.from_chat:
-                            target = re.findall(r"(\[(id|club)[0-9]+\|@\w+\])", event.object.get('text'))
+                            target = re.findall(r"(\[(id|club)[0-9]+\|@?\w+\])$", event.object.get('text'))
                             print(target)
                             print(event.object.get('text'))
 
                             uid = event.object.get('from_id')
                             name_surname = " ".join(get_name(vk, uid))
 
-                            if len(target) == 1:
+                            if len(target) == 0:
                                 send_vk_msg(vk, event, bonkMsg[1].format(name_surname), None)
                             else:
-                                send_vk_msg(vk, event, bonkMsg[0].format(name_surname, target[1][0]), None)
+                                send_vk_msg(vk, event, bonkMsg[0].format(name_surname, target[0][0]), None)
 
                     elif any(cmd in cmd_in for cmd in ('хорни', 'прон')):
                         if event.from_chat:
