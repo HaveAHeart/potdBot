@@ -8,7 +8,8 @@ import vk_api
 import re
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from vk_api.utils import get_random_id
-
+import vk_api.upload
+import os
 
 config = configparser.ConfigParser()
 config.read('params.ini')
@@ -55,6 +56,22 @@ AUDIO_LIST_P = [
     [149642725, 456239961],
     [149642725, 456240281]
 ]
+
+
+def get_horny_att(vk_upload, tn):
+    response = requests.get(tn)
+    file = open("tmp_dj_tn.jpg", "wb")  # TODO - do smth with var names
+    file.write(response.content)
+    file.close()
+
+    ph = vk_upload.photo_messages("tmp_dj_tn.jpg")
+    owner = ph[0].get('owner_id')
+    media = ph[0].get('id')
+    accesskey = ph[0].get('access_key')
+    att = "photo{}_{}_{}".format(owner, media, accesskey)
+
+    os.remove("tmp_dj_tn.jpg")
+    return att
 
 
 def register(conn, userid, chatid, name, surname):
@@ -148,6 +165,7 @@ def runBot():
             vk_session = vk_api.VkApi(token=tkn)
             longpoll = VkBotLongPoll(vk_session, session)
             vk = vk_session.get_api()
+            vk_upload = vk_api.upload.VkUpload(vk)
 
             for event in longpoll.listen():
                 if event.type == VkBotEventType.MESSAGE_NEW:
@@ -231,11 +249,15 @@ def runBot():
                             else:
                                 send_vk_msg(vk, event, bonkMsg[0].format(name_surname, target[1][0]), None)
 
-                    elif any(cmd in cmd_in for cmd in ('horny', 'хорни', 'прон')):
+                    elif any(cmd in cmd_in for cmd in ('хорни', 'прон')):
                         if event.from_chat:
                             try:
                                 nhid = nhentai.get_random_id()
                                 dj = nhentai.get_doujin(nhid)
+
+                                tn = dj.thumbnail
+                                att = get_horny_att(vk_upload, tn)
+
                                 tags_raw = dj.tags
                                 artists = []
                                 tags = []
@@ -253,6 +275,7 @@ def runBot():
                                 hmsg = hmsg + 'Тэги: ' + ", ".join(tags) + "\n"
 
                                 send_vk_msg(vk, event, random.choice(hornyFirstMsg), None)
+                                send_vk_msg(vk, event, "", att)
                                 send_vk_msg(vk, event, hornyServMsg[0].format(nhid), None)
                                 send_vk_msg(vk, event, hmsg, None)
 
