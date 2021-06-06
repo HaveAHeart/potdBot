@@ -22,8 +22,9 @@ ts = config['VK_MSG']['ts']
 randomMsg = ['Новый пидор дня: @id{0}({1} {2}),\n а его личный пассив: @id{3}({4} {5})\n',
              'Текущий пидор дня: @id{0}({1} {2}),\n а его личный пассив: @id{3}({4} {5})\n'
              'А потом у них было много секса, но мы это не покажем...\n',
-             'САМООТСОС!\n',
-             'Система поиска пидорасов активирована']
+             'САМООТСОС!\n']
+with open('dailyRandom.txt', 'r', encoding="utf-8") as f:
+    dailyRandomMsg = f.readlines()
 statMsg = ['Итого, стата:\n',
            '@id{0}({1} {2}):  количество раз: {3}\n']
 regMsg = ['А ты уже)0))\n',
@@ -42,8 +43,10 @@ morgMsg = ['Тут должны были быть треки моргена, н�
 packeticMsg = ['С вас 5 рублей']
 hornyServMsg = ['nhentai.net/g/{}',
                 'Не могу законнектиться. Тыкай @deffichento, чтоб подрубил впн\n']
-bonkMsg = ['{} даёт {} дубинкой по голове\n',
-           '{} очень хочет сделать кого-то менее хорни, но не знает, кого\n']
+with open('soloBonk.txt', 'r', encoding="utf-8") as f:
+    soloBonkMsg = f.readlines()
+with open('duoBonk.txt', 'r', encoding="utf-8") as f:
+    duoBonkMsg = f.readlines()
 with open('horny_intro.txt', 'r', encoding="utf-8") as f:
     hornyFirstMsg = f.readlines()
 
@@ -182,7 +185,7 @@ def runBot():
                             if ret[1] == ret[4]:
                                 msg = msg + randomMsg[2]
 
-                            send_vk_msg(vk, event, randomMsg[3], None)
+                            send_vk_msg(vk, event, random.choice(dailyRandomMsg), None)
                             send_vk_msg(vk, event, msg, None)
 
                     elif any(cmd in cmd_in for cmd in ('статистика', 'стата')):
@@ -245,13 +248,16 @@ def runBot():
                             name_surname = " ".join(get_name(vk, uid))
 
                             if len(target) == 0:
-                                send_vk_msg(vk, event, bonkMsg[1].format(name_surname), None)
+                                msg = random.choice(soloBonkMsg).format(name_surname)
+                                send_vk_msg(vk, event, msg, None)
                             else:
-                                send_vk_msg(vk, event, bonkMsg[0].format(name_surname, target[0][0]), None)
+                                msg = random.choice(duoBonkMsg).format(name_surname, target[0][0])
+                                send_vk_msg(vk, event, msg, None)
 
                     elif any(cmd in cmd_in for cmd in ('хорни', 'прон')):
                         if event.from_chat:
                             try:
+                                # TODO make function for all this crap
                                 nhid = nhentai.get_random_id()
                                 dj = nhentai.get_doujin(nhid)
 

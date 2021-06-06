@@ -17,7 +17,7 @@ pip install vk_api
 
 pip install psycopg2
 
-pip install hnentai.py
+pip install nhentai.py
 
 Все пассы для АПИ ВК и доступа к БД находяятся в params.ini - файле, код для его генерации в файле iniCreate.py
 
