@@ -19,6 +19,8 @@ key = config['VK_MSG']['key']
 server = config['VK_MSG']['server']
 ts = config['VK_MSG']['ts']
 
+# TODO - move all the phrases to the outer .txt files
+
 randomMsg = ['Новый пидор дня: @id{0}({1} {2}),\n а его личный пассив: @id{3}({4} {5})\n',
              'Текущий пидор дня: @id{0}({1} {2}),\n а его личный пассив: @id{3}({4} {5})\n'
              'А потом у них было много секса, но мы это не покажем...\n',
@@ -36,13 +38,15 @@ helpMsg = ['Список комманд:\n\n'
            ' • рандом - вращайте барабан\n'
            ' • годовалый - подебитель года\n'
            ' • стата/статистика - счет древних шизов\n\n'
-           ' • хорни - 🌚\n\n'
-           ' • боньк - прописать человечку боньк (цель задаётся через "@")\n'
-           ' Все комманды прописываются через @piwass']
+           ' • ролл - роллим от 1 до 100. Зато честно!\n'
+           ' • хорни - 🌚\n'
+           ' • боньк - прописать человечку боньк (цель задаётся через ссылку - собачкой или как вам угодно)\n\n'
+           ' Все комманды прописываются через @piwass или /\n'
+           ' Приятного времяпрепровождения 🌚🌚🌚']
 morgMsg = ['Тут должны были быть треки моргена, но @deffichento(данный господин) наложил на него вето']
 packeticMsg = ['С вас 5 рублей']
-hornyServMsg = ['nhentai.net/g/{}',
-                'Не могу законнектиться. Тыкай @deffichento, чтоб подрубил впн\n']
+hornyServiceMsg = ['nhentai.net/g/{}',
+                   'Не могу законнектиться. Тыкай @deffichento, чтоб подрубил впн\n']
 with open('soloBonk.txt', 'r', encoding="utf-8") as f:
     soloBonkMsg = f.readlines()
 with open('duoBonk.txt', 'r', encoding="utf-8") as f:
@@ -52,12 +56,12 @@ with open('horny_intro.txt', 'r', encoding="utf-8") as f:
 
 AUDIO_LIST_P = [
     [149642725, 456240733],
-    [149642725, 456240540],
-    [149642725, 456240537],
-    [149642725, 456239941],
-    [149642725, 456240255],
-    [149642725, 456239961],
-    [149642725, 456240281]
+    # [149642725, 456240540],
+    # [149642725, 456240537],
+    # [149642725, 456239941],
+    # [149642725, 456240255],
+    # [149642725, 456239961],
+    # [149642725, 456240281]
 ]
 
 
@@ -173,7 +177,7 @@ def runBot():
             for event in longpoll.listen():
                 if event.type == VkBotEventType.MESSAGE_NEW:
                     cmd_in = str(event).lower()
-                    if any(cmd in cmd_in for cmd in ('рандом', 'ролл')):
+                    if any(cmd in cmd_in for cmd in ('рандом', 'пидор')):
                         if event.from_chat:
                             cid = event.chat_id
                             ret = randomize(conn, cid)
@@ -181,12 +185,20 @@ def runBot():
                                 msg = randomMsg[0].format(ret[1], ret[2], ret[3], ret[4], ret[5], ret[6])
                             else:
                                 msg = randomMsg[1].format(ret[1], ret[2], ret[3], ret[4], ret[5], ret[6])
-
                             if ret[1] == ret[4]:
                                 msg = msg + randomMsg[2]
 
                             send_vk_msg(vk, event, random.choice(dailyRandomMsg), None)
                             send_vk_msg(vk, event, msg, None)
+
+                    if any(cmd in cmd_in for cmd in ('ролл', 'roll')):
+                        roll = random.randint(1, 100)
+
+                        # TODO - move all the phrases to the outer .txt file
+                        send_vk_msg(vk, event, 'Крутите барабан...', None)
+
+                        msg = 'И вам выпало {}. Даже не знаю, радоваться или плакать...'.format(roll)
+                        send_vk_msg(vk, event, msg, None)
 
                     elif any(cmd in cmd_in for cmd in ('статистика', 'стата')):
                         if event.from_chat:
@@ -195,7 +207,6 @@ def runBot():
                             msg = statMsg[0]
                             for row in ret:
                                 msg = msg + statMsg[1].format(row[0], row[1], row[2], row[3])
-
                             send_vk_msg(vk, event, msg, None)
 
                     elif any(cmd in cmd_in for cmd in ('регистрация', 'рега')):
@@ -208,7 +219,6 @@ def runBot():
                                 msg = regMsg[0]
                             else:
                                 msg = regMsg[1].format(uid)
-
                             send_vk_msg(vk, event, msg, None)
 
                     elif any(cmd in cmd_in for cmd in ('годовалый', 'год')):
@@ -218,13 +228,11 @@ def runBot():
                             msg = godovaliyMsg[0].format(ret[1], ret[2], ret[3])
                         else:
                             msg = godovaliyMsg[1].format(ret[1], ret[2], ret[3])
-
                         send_vk_msg(vk, event, msg, None)
 
                     elif any(cmd in cmd_in for cmd in ('помощь', 'хелпа')):
                         if event.from_chat:
                             msg = helpMsg[0]
-
                             send_vk_msg(vk, event, msg, None)
 
                     elif any(cmd in cmd_in for cmd in ('моргенштерн', 'морген', 'morgenshtern')):
@@ -235,11 +243,12 @@ def runBot():
                         if event.from_chat:
                             random_audio = random.choice(AUDIO_LIST_P)
                             att = f"audio{random_audio[0]}_{random_audio[1]}"
-
                             send_vk_msg(vk, event, packeticMsg[0], att)
 
-                    elif any(cmd in cmd_in for cmd in ('боньк', )):
+                    elif any(cmd in cmd_in for cmd in ('боньк',)):
                         if event.from_chat:
+                            # TODO make function for all this crap
+
                             target = re.findall(r"(\[(id|club)[0-9]+\|@?\w+\])$", event.object.get('text'))
                             print(target)
                             print(event.object.get('text'))
@@ -282,12 +291,12 @@ def runBot():
 
                                 send_vk_msg(vk, event, random.choice(hornyFirstMsg), None)
                                 send_vk_msg(vk, event, "", att)
-                                send_vk_msg(vk, event, hornyServMsg[0].format(nhid), None)
+                                send_vk_msg(vk, event, hornyServiceMsg[0].format(nhid), None)
                                 send_vk_msg(vk, event, hmsg, None)
 
                             except:
                                 send_vk_msg(vk, event, random.choice(hornyFirstMsg), None)
-                                send_vk_msg(vk, event, hornyServMsg[1], None)
+                                send_vk_msg(vk, event, hornyServiceMsg[1], None)
 
         except requests.exceptions.ReadTimeout:
             print("\n Переподключение к серверам ВК \n")
