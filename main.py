@@ -22,18 +22,44 @@ ts = config['VK_MSG']['ts']
 # TODO - move all the phrases to the outer .txt files
 # TODO - add requirements to the outer .txt file
 
-randomMsg = ['Новый пидор дня: @id{0}({1} {2}),\n а его личный пассив: @id{3}({4} {5})\n',
-             'Текущий пидор дня: @id{0}({1} {2}),\n а его личный пассив: @id{3}({4} {5})\n'
-             'А потом у них было много секса, но мы это не покажем...\n',
-             'САМООТСОС!\n']
-with open('dailyRandom.txt', 'r', encoding="utf-8") as f:
+# DAILY POTD sources
+# if the new potd has been just chosen
+with open('src/dailyNew.txt', 'r', encoding="utf-8") as f:
+    dailyNewPatterns = f.readlines()
+# if the potd was already rolled today
+with open('src/dailyResult.txt', 'r', encoding="utf-8") as f:
+    dailyResultPatterns = f.readlines()
+# random pre-result intro message
+with open('src/dailyRandom.txt', 'r', encoding="utf-8") as f:
     dailyRandomMsg = f.readlines()
-statMsg = ['Итого, стата:\n',
-           '@id{0}({1} {2}):  количество раз: {3}\n']
-regMsg = ['А ты уже)0))\n',
-          'Я записал @id{0}(тебя) в тетрадочку...\n']
-godovaliyMsg = ['Новый годовалый:\n @id{0}({1} {2})\n',
-                'Текущий годовалый:\n @id{0}({1} {2})\n']
+# other text sources for daily rolling
+with open('src/dailyUtility.txt', 'r', encoding="utf-8") as f:
+    dailyUtility = f.readlines()
+
+# STATS sources
+# line patterns for result
+with open('src/statPatterns.txt', 'r', encoding="utf-8") as f:
+    statPatterns = f.readlines()
+# other text sources for stats
+with open('src/statUtility.txt', 'r', encoding="utf-8") as f:
+    statUtility = f.readlines()
+
+# REGISTRATION sources
+# line patterns for successful registration
+with open('src/regSucPatterns.txt', 'r', encoding="utf-8") as f:
+    regSucPatterns = f.readlines()
+# line patterns for failed registration
+with open('src/regFailPatterns.txt', 'r', encoding="utf-8") as f:
+    regFailPatterns = f.readlines()
+
+# ANNUAL POTD sources
+# if the annual potd has been just chosen
+with open('src/annualNew.txt', 'r', encoding="utf-8") as f:
+    annualNewPatterns = f.readlines()
+# if the annual potd was already rolled this year
+with open('src/annualResult.txt', 'r', encoding="utf-8") as f:
+    annualResultPatterns = f.readlines()
+
 helpMsg = ['Список комманд:\n\n'
            ' • регистрация/рега - записаться в пидорасы\n'
            ' • рандом - вращайте барабан\n'
@@ -48,21 +74,15 @@ morgMsg = ['Тут должны были быть треки моргена, н�
 packeticMsg = ['Пока этот глиномес не пришлёт нормальный плейлист, тут будет торчать всего один мешап.']
 hornyServiceMsg = ['nhentai.net/g/{}',
                    'Не могу законнектиться. Тыкай @deffichento, чтоб подрубил впн\n']
-with open('soloBonk.txt', 'r', encoding="utf-8") as f:
+with open('src/soloBonk.txt', 'r', encoding="utf-8") as f:
     soloBonkMsg = f.readlines()
-with open('duoBonk.txt', 'r', encoding="utf-8") as f:
+with open('src/duoBonk.txt', 'r', encoding="utf-8") as f:
     duoBonkMsg = f.readlines()
-with open('horny_intro.txt', 'r', encoding="utf-8") as f:
+with open('src/horny_intro.txt', 'r', encoding="utf-8") as f:
     hornyFirstMsg = f.readlines()
 
 AUDIO_LIST_P = [
     [149642725, 456240733],
-    # [149642725, 456240540],
-    # [149642725, 456240537],
-    # [149642725, 456239941],
-    # [149642725, 456240255],
-    # [149642725, 456239961],
-    # [149642725, 456240281]
 ]
 
 
@@ -75,8 +95,8 @@ def get_horny_att(vk_upload, tn):
     ph = vk_upload.photo_messages("tmp_dj_tn.jpg")
     owner = ph[0].get('owner_id')
     media = ph[0].get('id')
-    accesskey = ph[0].get('access_key')
-    att = "photo{}_{}_{}".format(owner, media, accesskey)
+    accessKey = ph[0].get('access_key')
+    att = "photo{}_{}_{}".format(owner, media, accessKey)
 
     os.remove("tmp_dj_tn.jpg")
     return att
@@ -183,11 +203,12 @@ def runBot():
                             cid = event.chat_id
                             ret = randomize(conn, cid)
                             if ret[0]:
-                                msg = randomMsg[0].format(ret[1], ret[2], ret[3], ret[4], ret[5], ret[6])
+                                msg = random.choice(dailyNewPatterns)
                             else:
-                                msg = randomMsg[1].format(ret[1], ret[2], ret[3], ret[4], ret[5], ret[6])
+                                msg = random.choice(dailyResultPatterns)
                             if ret[1] == ret[4]:
-                                msg = msg + randomMsg[2]
+                                msg = msg + dailyUtility[0]
+                            msg = msg.format(ret[1], ret[2], ret[3], ret[4], ret[5], ret[6])
 
                             send_vk_msg(vk, event, random.choice(dailyRandomMsg), None)
                             send_vk_msg(vk, event, msg, None)
@@ -205,9 +226,10 @@ def runBot():
                         if event.from_chat:
                             cid = event.chat_id
                             ret = stats(conn, cid)
-                            msg = statMsg[0]
+                            msg = statUtility[0] + '\n\n'
+                            ptrn = random.choice(statPatterns)
                             for row in ret:
-                                msg = msg + statMsg[1].format(row[0], row[1], row[2], row[3])
+                                msg = msg + ptrn.format(row[0], row[1], row[2], row[3])
                             send_vk_msg(vk, event, msg, None)
 
                     elif any(cmd in cmd_in for cmd in ('регистрация', 'рега')):
@@ -217,18 +239,18 @@ def runBot():
                             name_surname = get_name(vk, uid)
                             ret = register(conn, uid, cid, name_surname[0], name_surname[1])
                             if ret[0]:
-                                msg = regMsg[0]
+                                msg = random.choice(regFailPatterns)
                             else:
-                                msg = regMsg[1].format(uid)
+                                msg = random.choice(regSucPatterns).format(uid)
                             send_vk_msg(vk, event, msg, None)
 
                     elif any(cmd in cmd_in for cmd in ('годовалый', 'год')):
                         cid = event.chat_id
                         ret = godovaliy(conn, cid)
                         if ret[0]:
-                            msg = godovaliyMsg[0].format(ret[1], ret[2], ret[3])
+                            msg = random.choice(annualNewPatterns).format(ret[1], ret[2], ret[3])
                         else:
-                            msg = godovaliyMsg[1].format(ret[1], ret[2], ret[3])
+                            msg = random.choice(annualResultPatterns).format(ret[1], ret[2], ret[3])
                         send_vk_msg(vk, event, msg, None)
 
                     elif any(cmd in cmd_in for cmd in ('помощь', 'хелпа')):
@@ -305,10 +327,10 @@ def runBot():
         except requests.exceptions.ConnectionError:
             print("\n Беды с коннекшном, опять играешься с ВПНом? \n")
             time.sleep(3)
-        except:
-            print("\n НЕИЗВЕСТНАЯ АШИПКА АТТЕНШОН \n")
+        #except:
+        #    print("\n НЕИЗВЕСТНАЯ АШИПКА АТТЕНШОН \n")
 
-            time.sleep(3)
+        #    time.sleep(3)
 
 
 if __name__ == '__main__':
