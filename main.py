@@ -60,30 +60,48 @@ with open('src/annualNew.txt', 'r', encoding="utf-8") as f:
 with open('src/annualResult.txt', 'r', encoding="utf-8") as f:
     annualResultPatterns = f.readlines()
 
-helpMsg = ['Список комманд:\n\n'
-           ' • регистрация/рега - записаться в пидорасы\n'
-           ' • рандом - вращайте барабан\n'
-           ' • годовалый - подебитель года\n'
-           ' • стата/статистика - счет древних шизов\n\n'
-           ' • ролл - роллим от 1 до 100. Зато честно!\n'
-           ' • хорни - 🌚\n'
-           ' • боньк - прописать человечку боньк (цель задаётся через ссылку - собачкой или как вам угодно)\n\n'
-           ' Все комманды прописываются через @piwass или /\n'
-           ' Приятного времяпрепровождения 🌚🌚🌚']
-morgMsg = ['Тут должны были быть треки моргена, но @deffichento(данный господин) наложил на него вето']
-packeticMsg = ['Пока этот глиномес не пришлёт нормальный плейлист, тут будет торчать всего один мешап.']
-hornyServiceMsg = ['nhentai.net/g/{}',
-                   'Не могу законнектиться. Тыкай @deffichento, чтоб подрубил впн\n']
+# HELP sources
+# help message
+with open('src/helpMsg.txt', 'r', encoding="utf-8") as f:
+    helpMsg = "\n".join(f.readlines())
+
+# PATHETIC sources
+# morgenstern messages
+with open('src/morgenMsg.txt', 'r', encoding="utf-8") as f:
+    morgenMsg = f.readlines()
+# mashup messages
+with open('src/patheticMsg.txt', 'r', encoding="utf-8") as f:
+    packeticMsg = f.readlines()
+# mashup ids - audio and owner
+with open('src/mashupList.txt', 'r', encoding="utf-8") as f:
+    mashupList = []
+    tmp = f.readlines()
+    for idPair in tmp:
+        mashupList.append([idPair.split(" ")])
+
+# BONK sources
+# bonk if no target is chosen
 with open('src/soloBonk.txt', 'r', encoding="utf-8") as f:
     soloBonkMsg = f.readlines()
+# bonk if there is a target
 with open('src/duoBonk.txt', 'r', encoding="utf-8") as f:
     duoBonkMsg = f.readlines()
+
+# HORNY sources
+# intro messages
 with open('src/horny_intro.txt', 'r', encoding="utf-8") as f:
     hornyFirstMsg = f.readlines()
+# service stuff for link/errors
+with open('src/hornyUtility.txt', 'r', encoding="utf-8") as f:
+    hornyUtility = f.readlines()
 
-AUDIO_LIST_P = [
-    [149642725, 456240733],
-]
+# ROLL sources
+# intro messages
+with open('src/rollIntro.txt', 'r', encoding="utf-8") as f:
+    rollIntro = f.readlines()
+# messages with results
+with open('src/rollMsg.txt', 'r', encoding="utf-8") as f:
+    rollMsg = f.readlines()
 
 
 def get_horny_att(vk_upload, tn):
@@ -181,6 +199,31 @@ def get_name(vk, from_id):
     return [info.get('first_name'), info['last_name']]
 
 
+def get_dj_and_cover(vk_upload):
+    djId = nhentai.get_random_id()
+    dj = nhentai.get_doujin(djId)
+
+    tn = dj.thumbnail
+    att = get_horny_att(vk_upload, tn)
+
+    tags_raw = dj.tags
+    artists = []
+    tags = []
+    langs = []
+    hmsg = ""
+    for tag in tags_raw:
+        if tag.type == 'tag':
+            tags.append(tag.name)
+        if tag.type == 'language':
+            langs.append(tag.name)
+        if tag.type == 'artist':
+            artists.append(tag.name)
+    hmsg = hmsg + 'Авторы: ' + ", ".join(artists) + "\n"
+    hmsg = hmsg + 'Языки: ' + ", ".join(langs) + "\n"
+    hmsg = hmsg + 'Тэги: ' + ", ".join(tags) + "\n"
+    return [hmsg, att, djId]
+
+
 def runBot():
     host = config['DB']['host']
     database = config['DB']['database']
@@ -216,11 +259,8 @@ def runBot():
                     if any(cmd in cmd_in for cmd in ('ролл', 'roll')):
                         roll = random.randint(1, 100)
 
-                        # TODO - move all the phrases to the outer .txt file
-                        send_vk_msg(vk, event, 'Крутите барабан...', None)
-
-                        msg = 'И вам выпало {}. Даже не знаю, радоваться или плакать...'.format(roll)
-                        send_vk_msg(vk, event, msg, None)
+                        send_vk_msg(vk, event, random.choice(rollIntro), None)
+                        send_vk_msg(vk, event, random.choice(rollMsg).format(roll), None)
 
                     elif any(cmd in cmd_in for cmd in ('статистика', 'стата')):
                         if event.from_chat:
@@ -255,18 +295,17 @@ def runBot():
 
                     elif any(cmd in cmd_in for cmd in ('помощь', 'хелпа')):
                         if event.from_chat:
-                            msg = helpMsg[0]
-                            send_vk_msg(vk, event, msg, None)
+                            send_vk_msg(vk, event, helpMsg, None)
 
                     elif any(cmd in cmd_in for cmd in ('моргенштерн', 'морген', 'morgenshtern')):
                         if event.from_chat:
-                            send_vk_msg(vk, event, morgMsg[0], None)
+                            send_vk_msg(vk, event, random.choice(morgenMsg), None)
 
                     elif any(cmd in cmd_in for cmd in ('дайте пакетик', 'pathetic', 'пакет')):
                         if event.from_chat:
-                            random_audio = random.choice(AUDIO_LIST_P)
+                            random_audio = random.choice(mashupList)
                             att = f"audio{random_audio[0]}_{random_audio[1]}"
-                            send_vk_msg(vk, event, packeticMsg[0], att)
+                            send_vk_msg(vk, event, random.choice(packeticMsg), att)
 
                     elif any(cmd in cmd_in for cmd in ('боньк',)):
                         if event.from_chat:
@@ -289,37 +328,19 @@ def runBot():
                     elif any(cmd in cmd_in for cmd in ('хорни', 'прон')):
                         if event.from_chat:
                             try:
-                                # TODO make function for all this crap
-                                nhid = nhentai.get_random_id()
-                                dj = nhentai.get_doujin(nhid)
-
-                                tn = dj.thumbnail
-                                att = get_horny_att(vk_upload, tn)
-
-                                tags_raw = dj.tags
-                                artists = []
-                                tags = []
-                                langs = []
-                                hmsg = ""
-                                for tag in tags_raw:
-                                    if tag.type == 'tag':
-                                        tags.append(tag.name)
-                                    if tag.type == 'language':
-                                        langs.append(tag.name)
-                                    if tag.type == 'artist':
-                                        artists.append(tag.name)
-                                hmsg = hmsg + 'Авторы: ' + ", ".join(artists) + "\n"
-                                hmsg = hmsg + 'Языки: ' + ", ".join(langs) + "\n"
-                                hmsg = hmsg + 'Тэги: ' + ", ".join(tags) + "\n"
+                                ret = get_dj_and_cover(vk_upload)
+                                hmsg = ret[0]
+                                cover = ret[1]
+                                djId = ret[2]
 
                                 send_vk_msg(vk, event, random.choice(hornyFirstMsg), None)
-                                send_vk_msg(vk, event, "", att)
-                                send_vk_msg(vk, event, hornyServiceMsg[0].format(nhid), None)
+                                send_vk_msg(vk, event, "", cover)
+                                send_vk_msg(vk, event, hornyUtility[0].format(djId), None)
                                 send_vk_msg(vk, event, hmsg, None)
 
                             except:
                                 send_vk_msg(vk, event, random.choice(hornyFirstMsg), None)
-                                send_vk_msg(vk, event, hornyServiceMsg[1], None)
+                                send_vk_msg(vk, event, hornyUtility[1], None)
 
         except requests.exceptions.ReadTimeout:
             print("\n Переподключение к серверам ВК \n")
