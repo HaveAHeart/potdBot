@@ -1,15 +1,18 @@
 import configparser
+import os
 import random
+import re
+import sched
+import threading
 import time
+
 import nhentai
 import psycopg2
 import requests
 import vk_api
-import re
+import vk_api.upload
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from vk_api.utils import get_random_id
-import vk_api.upload
-import os
 
 config = configparser.ConfigParser()
 config.read('params.ini')
@@ -18,6 +21,8 @@ session = config['VK_MSG']['session']
 key = config['VK_MSG']['key']
 server = config['VK_MSG']['server']
 ts = config['VK_MSG']['ts']
+
+s = sched.scheduler(time.time, time.sleep)
 
 # TODO - move all the phrases to the outer .txt files
 # TODO - add requirements to the outer .txt file
@@ -224,12 +229,45 @@ def get_dj_and_cover(vk_upload):
     return [hmsg, att, djId]
 
 
+def friday(vk, cid):  # piwas exclusive
+    vk.messages.send(
+        key=key,
+        server=server,
+        ts=ts,
+        random_id=get_random_id(),
+        message='С пятницей, господа!',
+        chat_id=cid
+    )
+    print('С пятницей, работяги!')
+
+
+def getTimeUntilFriday():
+    daysSinceThursday = (time.time() / (60 * 60 * 24)) % 7
+    daysUntilFriday = (8 - daysSinceThursday) % 7
+    fridayTimer = (daysUntilFriday * 24 * 60 * 60) + (16 * 60 * 60)  # Friday time! dk why -2 hours
+    return round(fridayTimer)
+
+
+def runFriday(vk):
+    timeUntilFriday = getTimeUntilFriday()
+    while True:
+        print('Friday timer is set, time until message - ' + str(timeUntilFriday) + ' sec')
+        s.enter(timeUntilFriday, 1, friday, argument=(vk, '1'))
+        s.run()
+        print('friday message sent!')
+
+
 def runBot():
     host = config['DB']['host']
     database = config['DB']['database']
     user = config['DB']['user']
     password = config['DB']['password']
     conn = psycopg2.connect(host=host, database=database, user=user, password=password)
+    vk_session = vk_api.VkApi(token=tkn)
+    vk = vk_session.get_api()
+
+    th = threading.Thread(target=runFriday, args=(vk,))
+    th.start()
 
     while True:
         try:
@@ -258,7 +296,6 @@ def runBot():
 
                     if any(cmd in cmd_in for cmd in ('ролл', 'roll')):
                         roll = random.randint(1, 100)
-
                         send_vk_msg(vk, event, random.choice(rollIntro), None)
                         send_vk_msg(vk, event, random.choice(rollMsg).format(roll), None)
 
@@ -348,7 +385,7 @@ def runBot():
         except requests.exceptions.ConnectionError:
             print("\n Беды с коннекшном, опять играешься с ВПНом? \n")
             time.sleep(3)
-        #except:
+        # except:
         #    print("\n НЕИЗВЕСТНАЯ АШИПКА АТТЕНШОН \n")
 
         #    time.sleep(3)
