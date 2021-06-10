@@ -257,6 +257,10 @@ def runFriday(vk):
         print('friday message sent!')
 
 
+def genocide(vk, event):  # piwas exclusive
+    send_vk_msg(vk, event, '@ant1quar, в лучший из миров очередь, но у вас привелегии', None)
+
+
 def runBot():
     host = config['DB']['host']
     database = config['DB']['database']
@@ -378,6 +382,10 @@ def runBot():
                             except:
                                 send_vk_msg(vk, event, random.choice(hornyFirstMsg), None)
                                 send_vk_msg(vk, event, hornyUtility[1], None)
+
+                    elif any(cmd in cmd_in for cmd in ('немец', 'флюгер', 'шлёпа')):
+                        if event.from_chat:
+                            genocide(vk, event)
 
         except requests.exceptions.ReadTimeout:
             print("\n Переподключение к серверам ВК \n")
