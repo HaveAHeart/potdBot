@@ -345,7 +345,8 @@ def runBot():
                     elif any(cmd in cmd_in for cmd in ('дайте пакетик', 'pathetic', 'пакет')):
                         if event.from_chat:
                             random_audio = random.choice(mashupList)
-                            att = f"audio{random_audio[0]}_{random_audio[1]}"
+                            print(random_audio)
+                            att = f"audio{random_audio[0][0]}_{random_audio[0][1]}"
                             send_vk_msg(vk, event, random.choice(packeticMsg), att)
 
                     elif any(cmd in cmd_in for cmd in ('боньк',)):
