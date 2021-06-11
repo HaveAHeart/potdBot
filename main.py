@@ -1,4 +1,5 @@
 import configparser
+import math
 import os
 import random
 import re
@@ -242,17 +243,19 @@ def friday(vk, cid):  # piwas exclusive
 
 
 def getTimeUntilFriday():
-    daysSinceThursday = (time.time() / (60 * 60 * 24)) % 7
-    daysUntilFriday = (8 - daysSinceThursday) % 7
-    fridayTimer = (daysUntilFriday * 24 * 60 * 60) + (16 * 60 * 60)  # Friday time! dk why -2 hours
-    return round(fridayTimer)
+    targetTime = (24 + 20) * 60 * 60  # next day(Fri), 19:00
+    timeFromTarget = ((time.time() + (60 * 60 * 3) - targetTime) % (60 * 60 * 24 * 7))  # GMT +03:00
+    print(timeFromTarget)
+    timeUntilTarget = (60 * 60 * 24 * 7) - timeFromTarget
+    print(timeUntilTarget)
+    return round(timeUntilTarget)
 
 
 def runFriday(vk):
-    timeUntilFriday = getTimeUntilFriday()
     while True:
+        timeUntilFriday = getTimeUntilFriday()
         print('Friday timer is set, time until message - ' + str(timeUntilFriday) + ' sec')
-        s.enter(timeUntilFriday, 1, friday, argument=(vk, '1'))
+        s.enter(timeUntilFriday, 2, friday, argument=(vk, '2'))
         s.run()
         print('friday message sent!')
 
