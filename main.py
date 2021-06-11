@@ -1,5 +1,4 @@
 import configparser
-import math
 import os
 import random
 import re
