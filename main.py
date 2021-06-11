@@ -255,7 +255,7 @@ def runFriday(vk):
     while True:
         timeUntilFriday = getTimeUntilFriday()
         print('Friday timer is set, time until message - ' + str(timeUntilFriday) + ' sec')
-        s.enter(timeUntilFriday, 2, friday, argument=(vk, '2'))
+        s.enter(timeUntilFriday, 1, friday, argument=(vk, '1'))
         s.run()
         print('friday message sent!')
 
