@@ -243,7 +243,7 @@ def friday(vk, cid):  # piwas exclusive
 
 
 def getTimeUntilFriday():
-    targetTime = (24 + 20.88) * 60 * 60  # next day(Fri), 19:00
+    targetTime = (24 + 21) * 60 * 60  # next day(Fri), 19:00
     timeFromTarget = ((time.time() + (60 * 60 * 3) - targetTime) % (60 * 60 * 24 * 7))  # GMT +03:00
     print(timeFromTarget)
     timeUntilTarget = (60 * 60 * 24 * 7) - timeFromTarget
