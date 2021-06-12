@@ -1,11 +1,10 @@
 import configparser
 
-config = configparser.ConfigParser()
-config['VK_MSG'] = {'Token': 'filler', 'Session': 'filler', 'Key': 'filler', 'Server': 'filler', 'ts': 'filler'}
-config['DB'] = {'Host': 'filler', 'Database': 'filler', 'User': 'filler', 'Password': 'filler'}
 
-with open('params.ini', 'w') as configfile:
-    config.write(configfile)
+def iniCreate(fileName, token, session, key, server, ts, host, database, user, password):
+    config = configparser.ConfigParser()
+    config['VK_MSG'] = {'Token': token, 'Session': session, 'Key': key, 'Server': server, 'ts': ts}
+    config['DB'] = {'Host': host, 'Database': database, 'User': user, 'Password': password}
 
-
-
+    with open(fileName, 'w') as configfile:
+        config.write(configfile)
