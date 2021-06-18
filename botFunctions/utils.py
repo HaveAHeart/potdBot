@@ -39,13 +39,20 @@ def send_vk_msg(vk, event, msg, attachment):
         )
 
 
-def send_friday_msg(vk, cid):  # piwas exclusive
+def send_friday_msg(vk, vk_upload, cid, picPath):  # piwas exclusive
+    ph = vk_upload.photo_messages(picPath)
+    owner = ph[0].get('owner_id')
+    media = ph[0].get('id')
+    accessKey = ph[0].get('access_key')
+    att = "photo{}_{}_{}".format(owner, media, accessKey)
+
     vk.messages.send(
         key=key,
         server=server,
         ts=ts,
         random_id=get_random_id(),
         message='С пятницей, господа!',
+        attachment=att,
         chat_id=cid
     )
     print('Fri msg sent!')

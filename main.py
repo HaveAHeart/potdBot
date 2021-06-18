@@ -23,8 +23,8 @@ def runBot():
     conn = psycopg2.connect(host=host, database=database, user=user, password=password)
     vk_session = vk_api.VkApi(token=tkn)
     vk = vk_session.get_api()
-
-    friday.doFriday(vk)
+    vk_upload = vk_api.upload.VkUpload(vk)
+    friday.doFriday(vk, vk_upload)
 
     while True:
         try:
