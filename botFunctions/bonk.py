@@ -19,8 +19,6 @@ def printCons():
 
 def doBonk(vk, event):
     target = re.findall(r"(\[(id|club)[0-9]+\|@?\w+\])$", event.object.get('text'))
-    print(target)
-    print(event.object.get('text'))
 
     uid = event.object.get('from_id')
     name_surname = " ".join(get_name(vk, uid))

@@ -35,15 +35,16 @@ def runBot():
 
             for event in longpoll.listen():
                 if event.type == VkBotEventType.MESSAGE_NEW:
-                    cmd_in = str(event).lower()
+                    cmd_in = event.object.get('text')
+                    print(cmd_in)
 
-                    if any(cmd in cmd_in for cmd in ('рандом', 'пидор')):
+                    if any(cmd in cmd_in for cmd in ('боньк',)):
+                        if event.from_chat:
+                            bonk.doBonk(vk, event)
+
+                    elif any(cmd in cmd_in for cmd in ('рандом', 'пидор')):
                         if event.from_chat:
                             potd.potdRequest(conn, vk, event)
-
-                    if any(cmd in cmd_in for cmd in ('ролл', 'roll')):
-                        if event.from_chat:
-                            roll.doRoll(vk, event)
 
                     elif any(cmd in cmd_in for cmd in ('статистика', 'стата')):
                         if event.from_chat:
@@ -69,13 +70,13 @@ def runBot():
                         if event.from_chat:
                             pathetic.doPathetic(vk, event)
 
-                    elif any(cmd in cmd_in for cmd in ('боньк',)):
-                        if event.from_chat:
-                            bonk.doBonk(vk, event)
-
                     elif any(cmd in cmd_in for cmd in ('хорни', 'прон')):
                         if event.from_chat:
                             horny.doHorny(vk, event, vk_upload)
+
+                    elif any(cmd in cmd_in for cmd in ('ролл', 'roll')):
+                        if event.from_chat:
+                            roll.doRoll(vk, event)
 
         except requests.exceptions.ReadTimeout:
             print("\n Переподключение к серверам ВК \n")
