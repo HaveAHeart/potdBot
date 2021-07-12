@@ -14,6 +14,11 @@ with open('src/mashupList.txt', 'r', encoding="utf-8") as f:
         mashupList.append([idPair.split(" ")])
 
 
+def printInitStats():
+    pattern = "Pathetic sources:\nIntro messages: {}\nMashups amount: {}\n"
+    print(pattern.format(len(packeticMsg), len(mashupList)))
+
+
 def doPathetic(vk, event):
     random_audio = random.choice(mashupList)
     print(random_audio)

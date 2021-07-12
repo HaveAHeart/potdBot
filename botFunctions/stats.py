@@ -10,6 +10,11 @@ with open('src/statUtility.txt', 'r', encoding="utf-8") as f:
     statUtility = f.readlines()
 
 
+def printInitStats():
+    pattern = "Stats sources:\nResult messages: {}\n"
+    print(pattern.format(len(statPatterns)))
+
+
 def stats(conn, chatid):
     sql = "SELECT * FROM pidorbot.stats(%s);"
     print('кто-то просит стату...\n')

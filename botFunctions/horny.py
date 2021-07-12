@@ -14,6 +14,11 @@ with open('src/hornyUtility.txt', 'r', encoding="utf-8") as f:
     hornyUtility = f.readlines()
 
 
+def printInitStats():
+    pattern = "Horny sources:\nIntro messages: {}\n"
+    print(pattern.format(len(hornyFirstMsg)))
+
+
 def get_dj_and_cover(vk_upload):
     djId = nhentai.get_random_id()
     dj = nhentai.get_doujin(djId)

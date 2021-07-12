@@ -10,6 +10,11 @@ with open('src/rollMsg.txt', 'r', encoding="utf-8") as f:
     rollMsg = f.readlines()
 
 
+def printInitStats():
+    pattern = "Roll sources:\nIntro messages: {}\nRoll messages: {}\n"
+    print(pattern.format(len(rollIntro), len(rollMsg)))
+
+
 def doRoll(vk, event):
     roll = random.randint(1, 100)
     send_vk_msg(vk, event, random.choice(rollIntro), None)

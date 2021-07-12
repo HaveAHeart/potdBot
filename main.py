@@ -15,6 +15,19 @@ tkn = config['VK_MSG']['token']
 session = config['VK_MSG']['session']
 
 
+def printStats():
+    bonk.printInitStats()
+    friday.printInitStats()
+    godovaliy.printInitStats()
+    horny.printInitStats()
+    morgen.printInitStats()
+    pathetic.printInitStats()
+    potd.printInitStats()
+    register.printInitStats()
+    roll.printInitStats()
+    stats.printInitStats()
+
+
 def runBot():
     host = config['DB']['host']
     database = config['DB']['database']
@@ -91,5 +104,6 @@ def runBot():
 
 
 if __name__ == '__main__':
+    printStats()
     print('bot started!')
     runBot()

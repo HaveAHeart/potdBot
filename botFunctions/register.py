@@ -11,6 +11,11 @@ with open('src/regFailPatterns.txt', 'r', encoding="utf-8") as f:
     regFailPatterns = f.readlines()
 
 
+def printInitStats():
+    pattern = "Register sources:\nSuccess messages: {}\nFail messages: {}\n"
+    print(pattern.format(len(regSucPatterns), len(regFailPatterns)))
+
+
 def register(conn, userid, chatid, name, surname):
     sql = "SELECT * FROM pidorbot.register(%s, %s, %s, %s);"
     print('кто-то регается...\n')

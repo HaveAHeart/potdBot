@@ -17,6 +17,11 @@ def printCons():
     print(random.choice(soloBonkMsg))
 
 
+def printInitStats():
+    pattern = "Bonk sources:\nSolo phrases(no target): {}\nDuo phrases(1 target): {}\n"
+    print(pattern.format(len(soloBonkMsg), len(duoBonkMsg)))
+
+
 def doBonk(vk, event):
     target = re.findall(r"(\[(id|club)[0-9]+\|@?\w+\])$", event.object.get('text'))
 

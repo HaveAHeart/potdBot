@@ -16,6 +16,11 @@ with open('src/dailyUtility.txt', 'r', encoding="utf-8") as f:
     dailyUtility = f.readlines()
 
 
+def printInitStats():
+    pattern = "POTD sources:\nDaily new messages: {}\nDaily result messages: {}\nDaily Random messages: {}\n"
+    print(pattern.format(len(dailyNewPatterns), len(dailyResultPatterns), len(dailyRandomMsg)))
+
+
 def randomize(conn, chatid):
     sql = "SELECT * FROM pidorbot.randomize(%s);"
     print('кто-то рандомит обычного...\n')

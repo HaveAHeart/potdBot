@@ -11,6 +11,11 @@ with open('src/annualResult.txt', 'r', encoding="utf-8") as f:
     annualResultPatterns = f.readlines()
 
 
+def printInitStats():
+    pattern = "Godovaliy sources:\nNew person: {}\nOld person: {}\n"
+    print(pattern.format(len(annualNewPatterns), len(annualResultPatterns)))
+
+
 def godovaliy(conn, chatid):
     sql = "SELECT * FROM pidorbot.godovaliy(%s);"
     print('кто-то рандомит годовалого...\n')
