@@ -11,7 +11,7 @@ picPaths = os.listdir('FridayPics/')
 
 
 def printInitStats():
-    pattern = "Friday sources:\nPirctures: {}\n"
+    pattern = "Friday sources:\nPictures: {}\n"
     print(pattern.format(len(picPaths)))
 
 
