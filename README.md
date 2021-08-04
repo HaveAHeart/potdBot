@@ -11,13 +11,9 @@ ATTENTION: OBSCENE LEXICON AHEAD
 ежедневный поиск ПОТД + пассива,
 ежегодный поиск годовалого ПОТД
 
-Зависимости:
+Зависимости в файле requirements.txt
 
-pip install vk_api
-
-pip install psycopg2
-
-pip install nhentai.py
+Установка зависимостей: pip install -r requirements.txt
 
 Все пассы для АПИ ВК и доступа к БД находяятся в params.ini - файле, код для его генерации в файле iniCreate.py
 
