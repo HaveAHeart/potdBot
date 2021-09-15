@@ -25,6 +25,7 @@ session = config['VK_MSG']['session']
 
 
 def printStats():
+    # TODO: REFACTOR
     bonk.printInitStats()
     friday.printInitStats()
     godovaliy.printInitStats()
