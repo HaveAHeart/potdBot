@@ -7,7 +7,16 @@ import vk_api
 import vk_api.upload
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 
-from botFunctions import bonk, chatHelp, friday, godovaliy, horny, morgen, pathetic, potd, register, roll, stats
+# bonk, roll, horny -> for lulz
+# friday -> for pics
+# morgen, pathetic -> for autistic persons
+# chatHelp, godovaliy, potd, register, stats, remove -> main functionality
+
+from botFunctions import \
+    bonk, roll, horny, \
+    friday, \
+    morgen, pathetic, \
+    chatHelp, godovaliy, potd, register, stats, remove
 
 config = configparser.ConfigParser()
 config.read('params.ini')
@@ -26,6 +35,7 @@ def printStats():
     register.printInitStats()
     roll.printInitStats()
     stats.printInitStats()
+    remove.printInitStats()
 
 
 def runBot():
@@ -41,53 +51,60 @@ def runBot():
 
     while True:
         try:
-            vk_session = vk_api.VkApi(token=tkn)
+            vk_session = vk_api.VkApi(token=tkn, api_version='5.144')
             longpoll = VkBotLongPoll(vk_session, session)
             vk = vk_session.get_api()
             vk_upload = vk_api.upload.VkUpload(vk)
 
             for event in longpoll.listen():
+                # DEBUG MODE for dummies lul
+                # print(event)
                 if event.type == VkBotEventType.MESSAGE_NEW:
                     cmd_in = event.object.get('text')
-                    print(cmd_in)
+                    # DEBUG MODE for dummies lul
+                    # print(cmd_in)
 
-                    if any(cmd in cmd_in for cmd in ('боньк',)):
+                    if any(cmd in cmd_in for cmd in ('/боньк',)):
                         if event.from_chat:
                             bonk.doBonk(vk, event)
 
-                    elif any(cmd in cmd_in for cmd in ('рандом', 'пидор')):
+                    elif any(cmd in cmd_in for cmd in ('/рандом', '/пидор')):
                         if event.from_chat:
                             potd.potdRequest(conn, vk, event)
 
-                    elif any(cmd in cmd_in for cmd in ('статистика', 'стата')):
+                    elif any(cmd in cmd_in for cmd in ('/статистика', '/стата')):
                         if event.from_chat:
                             stats.doStats(conn, vk, event)
 
-                    elif any(cmd in cmd_in for cmd in ('регистрация', 'рега')):
+                    elif any(cmd in cmd_in for cmd in ('/регистрация', '/рега')):
                         if event.from_chat:
                             register.doRegister(conn, vk, event)
 
-                    elif any(cmd in cmd_in for cmd in ('годовалый', 'год')):
+                    elif any(cmd in cmd_in for cmd in ('/годовалый', '/год')):
                         if event.from_chat:
                             godovaliy.doGodovaliy(conn, vk, event)
 
-                    elif any(cmd in cmd_in for cmd in ('помощь', 'хелпа')):
+                    elif any(cmd in cmd_in for cmd in ('/удалить', '/трахнуть')):
+                        if event.from_chat:
+                            remove.doRemove(conn, vk, event)
+
+                    elif any(cmd in cmd_in for cmd in ('/помощь', '/хелпа')):
                         if event.from_chat:
                             chatHelp.doHelp(vk, event)
 
-                    elif any(cmd in cmd_in for cmd in ('моргенштерн', 'морген', 'morgenshtern')):
+                    elif any(cmd in cmd_in for cmd in ('/моргенштерн', '/морген', '/morgenshtern')):
                         if event.from_chat:
                             morgen.doMorgen(vk, event)
 
-                    elif any(cmd in cmd_in for cmd in ('дайте пакетик', 'pathetic', 'пакет')):
+                    elif any(cmd in cmd_in for cmd in ('/дайте пакетик', '/pathetic', '/пакет')):
                         if event.from_chat:
                             pathetic.doPathetic(vk, event)
 
-                    elif any(cmd in cmd_in for cmd in ('хорни', 'прон')):
+                    elif any(cmd in cmd_in for cmd in ('/хорни', '/прон')):
                         if event.from_chat:
                             horny.doHorny(vk, event, vk_upload)
 
-                    elif any(cmd in cmd_in for cmd in ('ролл', 'roll')):
+                    elif any(cmd in cmd_in for cmd in ('/ролл', '/roll')):
                         if event.from_chat:
                             roll.doRoll(vk, event)
 
@@ -98,7 +115,7 @@ def runBot():
             print("\n Беды с коннекшном, опять играешься с ВПНом? \n")
             time.sleep(3)
         # except:
-        #    print("\n НЕИЗВЕСТНАЯ АШИПКА АТТЕНШОН \n")
+        #    print("\n UNKNOWN ERROR ATTENTION!11!1 \n")
 
         #    time.sleep(3)
 
